@@ -1,0 +1,152 @@
+#!/bin/sh
+#
+# Allows Qt QmlLive Bench to control a libsailfishapp-based application
+#
+# Copyright (C) 2016 Jolla Ltd.
+# Contact: Martin Kampas <martin.kampas@jolla.com>
+# All rights reserved.
+#
+# You may use this file under the terms of BSD license as follows:
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#   * Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#   * Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#   * Neither the name of the Jolla Ltd nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+SELF="$(basename "$0")"
+
+usage()
+{
+    cat >&2 <<EOF
+Usage: $SELF [--ipcport PORT] [--workspace WORKSPACE]
+       [--update-on-connect] [--no-updates-as-overlay] [--load-dummy-data]
+       [--print-env | [--] APP [ARGS...]]
+
+Allows Qt QmlLive Bench to control a libsailfishapp-based application.
+
+OPTIONS
+    --ipcport PORT
+      IPC port to listen on. Defaults to 10234.
+
+    --workspace WORKSPACE
+      Path to workspace directory. Defaults to application's shared data
+      directory. Relative path will be resolved relative to application's
+      shared data directory with SailfishApp::pathTo().
+
+    --update-on-connect
+      Update all workspace documents initially (blocking).
+
+    --no-updates-as-overlay
+      Normally, updates are stored in a writable overlay stacked over the actual
+      workspace which can be read only. This is achieved using the
+      QQmlAbstractUrlInterceptor mechanism. This option disables this feature,
+      and the actual workspace documents will be overwritten instead. This
+      requires write access to the WORKSPACE directory.
+
+    --load-dummy-data
+      Enable loading of dummy QML data - QML documents located in the
+      "dummydata" subdirectory of the WORKSPACE directory. These will be exposed
+      as context properties using file name without extension as property name.
+
+    --print-env
+      Do not execute an APP, only print the environment variables definition
+      in a format suitable for sourcing in a shell.
+
+      The way how the libsailfishapp-based application APP is set up to be
+      controllable by Qt QmlLive Bench is via the LD_PRELOAD mechanism (see
+      ld.so(8)). If it is not possible to use this exec wrapper to start the
+      application, it can be set up by defining certain environment variables.
+EOF
+}
+
+export_or_print()
+{
+    if [ -n "$OPT_PRINT_ENV" ]; then
+        echo "export $1=\"$2\""
+    else
+        export $1="$2"
+    fi
+}
+
+while true; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit 1
+            ;;
+        --ipcport)
+            shift
+            OPT_IPCPORT="$1"
+            ;;
+        --workspace)
+            shift
+            OPT_WORKSPACE="$1"
+            ;;
+        --update-on-connect)
+            OPT_UPDATE_ON_CONNECT=1
+            ;;
+        --no-updates-as-overlay)
+            OPT_NO_UPDATES_AS_OVERLAY=1
+            ;;
+        --load-dummy-data)
+            OPT_LOAD_DUMMY_DATA=1
+            ;;
+        --print-env)
+            OPT_PRINT_ENV=1
+            ;;
+        --)
+            shift
+            break
+            ;;
+        -*)
+            echo "$SELF: Invalid argument: $1" >&2
+            usage
+            exit 1
+            ;;
+        *)
+            break
+            ;;
+    esac
+    shift
+done
+
+if [ $# -gt 0 ]; then
+    HAS_POSITIONAL_ARG=1
+fi
+
+if [ "$OPT_PRINT_ENV" == "$HAS_POSITIONAL_ARG" ]; then
+    echo -e "$SELF: Exactly one of 'APP' or '--print-env' must be given.\n" >&2
+    usage
+    exit 1
+fi
+
+libsailfishapp_preload="$(dirname "$0")/../lib/qmllive-sailfish/libsailfishapp-preload.so"
+libsailfishapp_preload="$(readlink -f "$libsailfishapp_preload")"
+export_or_print LD_PRELOAD "${libsailfishapp_preload}${LD_PRELOAD+=:$LD_PRELOAD}"
+
+[ -n "$OPT_IPCPORT" ] && export_or_print QMLLIVERUNTIME_SAILFISH_IPC_PORT "$OPT_IPCPORT"
+[ -n "$OPT_WORKSPACE" ] && export_or_print QMLLIVERUNTIME_SAILFISH_WORKSPACE "$OPT_WORKSPACE"
+[ -n "$OPT_UPDATE_ON_CONNECT" ] && export_or_print QMLLIVERUNTIME_SAILFISH_UPDATE_ON_CONNECT 1
+[ -n "$OPT_NO_UPDATES_AS_OVERLAY" ] && export_or_print QMLLIVERUNTIME_SAILFISH_NO_UPDATES_AS_OVERLAY 1
+[ -n "$OPT_LOAD_DUMMY_DATA" ] && export_or_print QMLLIVERUNTIME_SAILFISH_LOAD_DUMMY_DATA 1
+
+if [ -n "$HAS_POSITIONAL_ARG" ]; then
+    exec "$@"
+fi
