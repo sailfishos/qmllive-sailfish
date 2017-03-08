@@ -36,7 +36,7 @@ usage()
 {
     cat >&2 <<EOF
 Usage: $SELF [--ipcport PORT] [--workspace WORKSPACE]
-       [--update-on-connect] [--no-updates-as-overlay] [--load-dummy-data]
+       [--no-update-on-connect] [--no-updates-as-overlay] [--load-dummy-data]
        [--print-env | [--] APP [ARGS...]]
 
 Allows Qt QmlLive Bench to control a libsailfishapp-based application.
@@ -50,8 +50,8 @@ OPTIONS
       directory. Relative path will be resolved relative to application's
       shared data directory with SailfishApp::pathTo().
 
-    --update-on-connect
-      Update all workspace documents initially (blocking).
+    --no-update-on-connect
+      Normally, all workspace documents are updated initially (blocking).
 
     --no-updates-as-overlay
       Normally, updates are stored in a writable overlay stacked over the actual
@@ -85,6 +85,9 @@ export_or_print()
     fi
 }
 
+# TODO for 1.0: invert the environment variable
+OPT_UPDATE_ON_CONNECT=1
+
 while true; do
     case "$1" in
         -h|--help)
@@ -100,7 +103,10 @@ while true; do
             OPT_WORKSPACE="$1"
             ;;
         --update-on-connect)
-            OPT_UPDATE_ON_CONNECT=1
+            echo "$SELF: $1 is the default now - no need to pass this option"
+            ;;
+        --no-update-on-connect)
+            OPT_UPDATE_ON_CONNECT=
             ;;
         --no-updates-as-overlay)
             OPT_NO_UPDATES_AS_OVERLAY=1
