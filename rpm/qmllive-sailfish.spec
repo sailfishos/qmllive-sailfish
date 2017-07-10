@@ -4,7 +4,7 @@ Release: 1
 Summary: Qt QmlLive extensions for Sailfish OS application development
 Group: Development/Libraries
 License: GPLv3+ and BSD
-URL: https://github.com/sailfish-sdk/qmllive-sailfish
+URL: https://github.com/sailfishos/qmllive-sailfish
 Source: %{name}-%{version}.tar.bz2
 BuildRequires: pkgconfig(qmllive)
 BuildRequires: pkgconfig(Qt5Gui)
