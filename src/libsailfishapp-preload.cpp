@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Jolla Ltd.
+ * Copyright (C) 2016,2018 Jolla Ltd.
  * Contact: Martin Kampas <martin.kampas@jolla.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -43,6 +43,7 @@ const char *const WORKSPACE_ENVVAR = "QMLLIVERUNTIME_SAILFISH_WORKSPACE";
 const char *const UPDATE_ON_CONNECT_ENVVAR = "QMLLIVERUNTIME_SAILFISH_UPDATE_ON_CONNECT";
 const char *const NO_UPDATES_AS_OVERLAY_ENVVAR = "QMLLIVERUNTIME_SAILFISH_NO_UPDATES_AS_OVERLAY";
 const char *const LOAD_DUMMY_DATA_ENVVAR = "QMLLIVERUNTIME_SAILFISH_LOAD_DUMMY_DATA";
+const char *const ALLOW_CREATE_MISSING_ENVVAR = "QMLLIVERUNTIME_SAILFISH_ALLOW_CREATE_MISSING";
 const int DEFAULT_IPC_PORT = 10234;
 
 struct Args
@@ -90,6 +91,10 @@ Args::Args()
 
     if (qEnvironmentVariableIsSet(NO_UPDATES_AS_OVERLAY_ENVVAR)) {
         workspaceOptions &= ~LiveNodeEngine::UpdatesAsOverlay;
+    }
+
+    if (qEnvironmentVariableIsSet(ALLOW_CREATE_MISSING_ENVVAR)) {
+        workspaceOptions |= LiveNodeEngine::AllowCreateMissing;
     }
 
     if (qEnvironmentVariableIsSet(LOAD_DUMMY_DATA_ENVVAR)) {
