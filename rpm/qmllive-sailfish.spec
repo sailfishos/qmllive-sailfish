@@ -6,7 +6,7 @@ Group: Development/Libraries
 License: GPLv3+ and BSD
 URL: https://github.com/sailfishos/qmllive-sailfish
 Source: %{name}-%{version}.tar.bz2
-BuildRequires: pkgconfig(qmllive)
+BuildRequires: pkgconfig(qmllive) >= 1.0.0+git5
 BuildRequires: pkgconfig(Qt5Gui)
 BuildRequires: pkgconfig(Qt5Quick)
 BuildRequires: pkgconfig(Qt5Qml)

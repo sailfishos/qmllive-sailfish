@@ -2,7 +2,7 @@
 #
 # Allows Qt QmlLive Bench to control a libsailfishapp-based application
 #
-# Copyright (C) 2016 Jolla Ltd.
+# Copyright (C) 2016,2018 Jolla Ltd.
 # Contact: Martin Kampas <martin.kampas@jolla.com>
 # All rights reserved.
 #
@@ -36,7 +36,8 @@ usage()
 {
     cat >&2 <<EOF
 Usage: $SELF [--ipcport PORT] [--workspace WORKSPACE]
-       [--no-update-on-connect] [--no-updates-as-overlay] [--load-dummy-data]
+       [--no-update-on-connect] [--no-updates-as-overlay]
+       [--allow-create-missing] [--load-dummy-data]
        [--print-env | [--] APP [ARGS...]]
 
 Allows Qt QmlLive Bench to control a libsailfishapp-based application.
@@ -59,6 +60,10 @@ OPTIONS
       QQmlAbstractUrlInterceptor mechanism. This option disables this feature,
       and the actual workspace documents will be overwritten instead. This
       requires write access to the WORKSPACE directory.
+
+    --allow-create-missing
+      Without this option enabled, updates are only accepted for existing
+      workspace documents
 
     --load-dummy-data
       Enable loading of dummy QML data - QML documents located in the
@@ -111,6 +116,9 @@ while true; do
         --no-updates-as-overlay)
             OPT_NO_UPDATES_AS_OVERLAY=1
             ;;
+        --allow-create-missing)
+            OPT_ALLOW_CREATE_MISSING=1
+            ;;
         --load-dummy-data)
             OPT_LOAD_DUMMY_DATA=1
             ;;
@@ -151,6 +159,7 @@ export_or_print LD_PRELOAD "${libsailfishapp_preload}${LD_PRELOAD+=:$LD_PRELOAD}
 [ -n "$OPT_WORKSPACE" ] && export_or_print QMLLIVERUNTIME_SAILFISH_WORKSPACE "$OPT_WORKSPACE"
 [ -n "$OPT_UPDATE_ON_CONNECT" ] && export_or_print QMLLIVERUNTIME_SAILFISH_UPDATE_ON_CONNECT 1
 [ -n "$OPT_NO_UPDATES_AS_OVERLAY" ] && export_or_print QMLLIVERUNTIME_SAILFISH_NO_UPDATES_AS_OVERLAY 1
+[ -n "$OPT_ALLOW_CREATE_MISSING" ] && export_or_print QMLLIVERUNTIME_SAILFISH_ALLOW_CREATE_MISSING 1
 [ -n "$OPT_LOAD_DUMMY_DATA" ] && export_or_print QMLLIVERUNTIME_SAILFISH_LOAD_DUMMY_DATA 1
 
 if [ -n "$HAS_POSITIONAL_ARG" ]; then
