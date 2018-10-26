@@ -129,13 +129,12 @@ void init(QQuickView *view)
     auto *connection = new QMetaObject::Connection;
     *connection = QObject::connect(view, &QQuickView::statusChanged,
         [view, node, workspace = args.workspace, connection]() mutable {
-            LiveDocument document = LiveDocument::resolve(workspace, view->source().toLocalFile());
+            LiveDocument document = LiveDocument::resolve(workspace, *node->resourceMap(), view->source());
             if (!document.isNull()) {
                 node->usePreloadedDocument(document, view->rootObject(), view, view->errors());
             } else {
-                qCWarning(preloadLog) << "Failed to determine initial active document"
-                                      << "- source is not a local file inside workspace directory:"
-                                      << view->source();
+                qCWarning(preloadLog) << "Failed to determine initial active document:"
+                                      << document.errorString();
             }
 
             QObject::disconnect(*connection);
