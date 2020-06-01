@@ -10,14 +10,14 @@ PKGCONFIG += qmllive
 # XXX: Do not hardcode this; use PKGCONFIG += like above (but we cannot do this
 # at this point, because of the "-pie" linker flag which would be added by
 # qdeclarative5-boostable.pc when available)
-INCLUDEPATH += /usr/include/sailfishapp
+INCLUDEPATH += $$PREFIX/include/sailfishapp
 LIBS += -lsailfishapp
 
 QMAKE_CXXFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 
 SOURCES = libsailfishapp-preload.cpp
 
-target.path = $$PREFIX/lib/qmllive-sailfish
+target.path = $$[QT_INSTALL_LIBS]/qmllive-sailfish
 INSTALLS += target
 
 wrapper.path = $$PREFIX/bin
