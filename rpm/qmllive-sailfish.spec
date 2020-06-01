@@ -2,7 +2,6 @@ Name: qmllive-sailfish
 Version: 0
 Release: 1
 Summary: Qt QmlLive extensions for Sailfish OS application development
-Group: Development/Libraries
 License: GPLv3+ and BSD
 URL: https://github.com/sailfishos/qmllive-sailfish
 Source: %{name}-%{version}.tar.bz2
