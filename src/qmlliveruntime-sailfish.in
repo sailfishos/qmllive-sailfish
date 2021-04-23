@@ -151,7 +151,7 @@ if [ "$OPT_PRINT_ENV" == "$HAS_POSITIONAL_ARG" ]; then
     exit 1
 fi
 
-libsailfishapp_preload="$(dirname "$0")/../lib/qmllive-sailfish/libsailfishapp-preload.so"
+libsailfishapp_preload="{{QT_INSTALL_LIBS}}/qmllive-sailfish/libsailfishapp-preload.so"
 libsailfishapp_preload="$(readlink -f "$libsailfishapp_preload")"
 export_or_print LD_PRELOAD "${libsailfishapp_preload}${LD_PRELOAD+=:$LD_PRELOAD}"
 
